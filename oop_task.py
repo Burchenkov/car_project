@@ -4,7 +4,8 @@ from class1 import New_car
 cars = {}
 id_mashiny = 1
 
-def add_car():
+def add_car(id_mashiny):
+    id_mashiny = id_mashiny
     vid_mashiny = input("Введите тип машины (обычная / инженерная):\n")
 
     if vid_mashiny.lower() == "обычная":
@@ -23,16 +24,16 @@ def add_car():
         print("Неверный тип машины. Попробуйте еще раз.")
         return
     
-    id_mashiny += 1
     cars[id_mashiny] = main_mashina
+    id_mashiny += 1
 
 def view_cars():
     for key in sorted(cars.keys()):
-        print(f"Количество {key} машин: {len(cars[key])}")
-        unique_brands = set([car.марка for car in cars[key].values()])
-        print(f"Уникальные марки {key} машин: {sorted(list(unique_brands))}")
+        print(f"Количество машин: {len(cars)}")
+        unique_brands = set([car.model for car in cars.values()])
+        print(f"Уникальные марки машин: {sorted(list(unique_brands))}")
         if key == "инженерные":
-            unique_specializations = set([car.специализация for car in cars[key].values()])
+            unique_specializations = set([car.specialization for car in cars[key].values()])
             print(f"Уникальные специализации {key} машин: {sorted(list(unique_specializations))}")
 
 while True:
@@ -44,7 +45,7 @@ while True:
     choice = input("Выберите опцию: ")
 
     if choice == "1":
-        add_car()
+        add_car(id_mashiny)
     elif choice == "2":
         view_cars()
     elif choice == "3":
