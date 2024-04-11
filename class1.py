@@ -1,4 +1,3 @@
-
 class Car:
     def __init__(self, year, country, model):
         self.year = year
