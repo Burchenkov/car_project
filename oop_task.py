@@ -1,5 +1,5 @@
-from m_classes import Car
-from m_classes import New_car
+from class1 import Car
+from class1 import New_car
 
 mashina_obychnye = {}
 mashina_inzhenernaya = {}

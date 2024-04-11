@@ -1,4 +1,3 @@
-
 class Car:
     def __init__(self, year, country, model):
         self.year = year
@@ -25,9 +24,3 @@ class New_car(Car):
 
     def get_specialization(self):
         return self.specialization
-
-
-
-    
-
-
