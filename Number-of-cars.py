@@ -1,6 +1,6 @@
 #Пример 1 (сам)
 
-"""#Словари для хранения уникальных марок и специализаций
+#Словари для хранения уникальных марок и специализаций
 unique_brands = set()
 unique_specializations = set()
 machines = []
@@ -34,14 +34,14 @@ while True:
         print("Программа завершена.")
         break
     else:
-        print("Некорректный выбор. Попробуйте снова.")"""
+        print("Некорректный выбор. Попробуйте снова.")
 
 #Пример 2 (Честно спиз***ое)
-"""def view_cars():
+def view_cars():
     for key in sorted(cars.keys()):
         print(f"Количество {key} машин: {len(cars[key])}")
         unique_brands = set([car.марка for car in cars[key].values()])
         print(f"Уникальные марки {key} машин: {sorted(list(unique_brands))}")
         if key == "инженерные":
             unique_specializations = set([car.специализация for car in cars[key].values()])
-            print(f"Уникальные специализации {key} машин: {sorted(list(unique_specializations))}")"""
+            print(f"Уникальные специализации {key} машин: {sorted(list(unique_specializations))}")
