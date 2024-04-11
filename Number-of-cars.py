@@ -1,7 +1,5 @@
-#Пример 1 (сам)
-
-"""#Словари для хранения уникальных марок и специализаций
-unique_brands = set()
+#Словари для хранения уникальных марок и специализаций
+unique_models = set()
 unique_specializations = set()
 machines = []
 
@@ -14,18 +12,18 @@ while True:
     choice = input("Выберите опцию: ")
 
     if choice == "1":
-        brand = input("Введите марку машины: ")
+        model = input("Введите марку машины: ")
         specialization = input("Введите специализацию машины: ")
-        machines.append((brand, specialization))
-        unique_brands.add(brand)
+        machines.append((model, specialization))
+        unique_models.add(model)
         unique_specializations.add(specialization)
         print("Машина успешно добавлена!")
     elif choice == "1":
         print(f"Количество добавленных машин: {len(machines)}")
     elif choice == "2":
         print("Уникальные марки машин:")
-        for brand in unique_brands:
-            print(brand)
+        for model in unique_models:
+            print(model)
     elif choice == "3":
         print("Уникальные специализации машин:")
         for specialization in unique_specializations:
@@ -34,7 +32,7 @@ while True:
         print("Программа завершена.")
         break
     else:
-        print("Некорректный выбор. Попробуйте снова.")"""
+        print("Некорректный выбор. Попробуйте снова.")
 
 #Пример 2 (Честно спиз***ое)
 """def view_cars():
