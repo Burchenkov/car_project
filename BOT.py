@@ -17,15 +17,16 @@ async def send_welcome(message: types.Message):
     await message.reply("Привет! Я бот для ввода машин "
                          "Какую машину хотите добавить, напишите simple,или special? " 
                          "Если хотите выйти, наберите exit")
-i = "exit"
+
+i = "on"
 while True:
 
     @dp.message(Command('exit'))
     async def send_bye(message: types.Message):
-        if sel
         await message.reply("Пока пока, заходи если что!")
-
-        print("EXIT")
+        i = "exit"
+ 
+    if i == "exit"
         break
 
 
