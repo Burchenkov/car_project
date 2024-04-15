@@ -40,10 +40,18 @@ async def send_simple(message: types.Message):
     # list.append(Car(0,"", message.text))
     # print(list[0])
     @dp.message()
-    async def data(message: types.Message, this_marks, yoc, country):
+    async def data(message: types.Message, this_marks):
         this_marks = marks
 
-        await message.reply(f"Вы добавили марку {marks}")
+        await message.reply(f"Вы добавили марку {marks}, укажите год производства: ")
+
+        @dp.message()
+        async def data(message: types.Message, this_yoc):
+        this_yoc = marks
+
+        await message.reply(f"Вы добавили марку {marks}, укажите год производства: ")
+
+
 
         
 
