@@ -3,13 +3,13 @@
 
 import asyncio
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command
-from aiogram.filters import StateFilter
+from aiogram import Router, filters
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import ReplyKeyboardRemove, \
-    ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.types import Message, ReplyKeyboardRemove
+
+
 
 API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
 
@@ -24,8 +24,8 @@ dp = Dispatcher()
 from class1 import Car
 list = []
 
-@dp.message(StateFilter(None), Command("simple"))
-async def cmd_simple(message: Message, state: FSMContext):
+@dp.message(Command("simple"))
+async def cmd_simple(, state: FSMContext):
     await message.answer(
         text= "Выберите тип машины:"
       
