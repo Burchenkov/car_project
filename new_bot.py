@@ -3,9 +3,10 @@
 
 import asyncio
 
+from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup #-----------
 from aiogram.fsm.context import FSMContext #-----------
-from aiogram.dispatcher.filters.command import CommandStart  #----------- 
+from aiogram.filters.command import CommandStart  #----------- 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command 
 from aiogram.types import ReplyKeyboardRemove, \
