@@ -3,13 +3,20 @@
 
 import asyncio
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command
-from aiogram.types import ReplyKeyboardRemove, \
-    ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import Router, filters
+from aiogram.filters import Command, StateFilter
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.types import Message, ReplyKeyboardRemove
+
+
 
 API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
+
+class CarForm(StatesGroup): #-----------
+    waiting_for_brand = State() #-----------
+    waiting_for_year = State() #-----------
+    waiting_for_country = State() #-----------
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
@@ -17,33 +24,54 @@ dp = Dispatcher()
 from class1 import Car
 list = []
 
-@dp.message(Command('start'))
-async def send_welcome(message: types.Message):
+@dp.message(Command("simple"))
+async def cmd_simple(, state: FSMContext):
+    await message.answer(
+        text= "Выберите тип машины:"
+      
+    )
+    await state.set_state(CarForm.waiting_for_brand)
 
-    await message.answer("Привет! Я бот для ввода машин "
-                         "Какую машину хотите добавить, напишите simple,или special? " 
-                         "Если хотите выйти, наберите exit")
+# @dp.message(Command('start'))
+# async def send_welcome(message: types.Message):
+
+#     await message.answer("Привет! Я бот для ввода машин "
+#                          "Какую машину хотите добавить, напишите simple,или special? " 
+#                          "Если хотите выйти, наберите exit")
 
 
-    @dp.message(Command('exit'))
-    async def send_bye(message: types.Message):
-        await message.answer("Пока пока, заходи если что!")
+#     @dp.message(Command('exit'))
+#     async def send_bye(message: types.Message):
+#         await message.answer("Пока пока, заходи если что!")
         
  
-@dp.message(Command('simple'))
-async def send_simple(message: types.Message):
-    marks = None
-    yoc = None
-    country = None
+# @dp.message(Command('simple'))
+# async def send_simple(message: types.Message):
+#     mark = None
+#     yoc = None
+#     country = None
     
-    await message.answer("Вы добавили простую машину! Укажите марку: ")
-    # list.append(Car(0,"", message.text))
-    # print(list[0])
-    @dp.message()
-    async def data(message: types.Message, this_marks, yoc, country):
-        this_marks = marks
+#     await message.answer("Вы добавили простую машину! Укажите марку: ")
+#     # list.append(Car(0,"", message.text))
+#     # print(list[0])
+#     @dp.message()
+#     async def data(message: types.Message):
+#         mark = message.text
 
-        await message.reply(f"Вы добавили марку {marks}")
+#         await message.reply(f"Вы добавили марку {mark}, укажите год производства: ")
+
+#         @dp.message()
+#         async def data(message: types.Message):
+#             yoc = int(message.text)
+
+#             await message.reply(f"Вы указали год {yoc}, укажите страну производства: ")
+
+#             @dp.message()
+#             async def data(message: types.Message):
+#                 country = message.text
+
+#                 await message.reply(f"Вы добавили страну {country}, ура! Теперь наберите /simple или /special, чтобы добавить еще одну машину! ")
+
 
         
 
@@ -63,7 +91,6 @@ async def send_special(message: types.Message):
 
 async def send_mark(message: types.Message):
     await message.reply("Введите марку")
-
 
 async def main():
     await dp.start_polling(bot)

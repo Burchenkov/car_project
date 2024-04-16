@@ -13,6 +13,18 @@ class Car:
 
     def get_model(self):
         return self.model
+    
+    def __getstate__(self) -> object:
+        state = {}
+        state["year"] = self.year
+        state["country"] = self.country
+        state["model"] = self.model
+        return state
+    
+    def __setstate__(self, state: object):
+        self.year = state["year"]
+        self.country = state["country"]
+        self.model = state["model"]
 
 class New_car(Car):
     def __init__(self, year, country, model, car_up, specialization):
