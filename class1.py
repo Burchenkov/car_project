@@ -1,12 +1,11 @@
+import json
+
 class Car:
-    def __init__(self, idm, year, country, model):
-        self.idm = idm
+    def __init__(self, car_id, year, country, model):
         self.year = year
         self.country = country
         self.model = model
-
-    def get_idm(self):
-        return self.idm
+        self.car_id = car_id
 
     def get_year(self):
         return self.year
@@ -16,10 +15,13 @@ class Car:
 
     def get_model(self):
         return self.model
+    
+    def get_car_id(self):
+        return self.car_id
 
 class New_car(Car):
-    def __init__(self, idm, year, country, model, car_up, specialization):
-        super().__init__(idm, year, country, model)
+    def __init__(self, car_id, year, country, model, car_up, specialization):
+        super().__init__(car_id, year, country, model)
         self.car_up = car_up
         self.specialization = specialization
 
@@ -28,3 +30,9 @@ class New_car(Car):
 
     def get_specialization(self):
         return self.specialization
+    
+class CarEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (Car, New_car)):
+            return obj.__dict__
+        return super().default(obj)
