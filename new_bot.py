@@ -32,11 +32,12 @@ class CarForm(StatesGroup): #-----------
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-model = None
-country = None
-spec = None
-car_up = None
-year = None
+# model = None
+# country = None
+# spec = None
+# car_up = None
+# year = None
+type = None
 
 #------------------------------------------------------------------------
 @dp.message(Command('start'))
@@ -46,16 +47,19 @@ async def start_adding_car(message: types.Message):
 @dp.message(Command('simple'))
 async def send_simple(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
-    await state.update_data(type=message.text)
+    type=message.text
+    print(f"ТИП МАШИНЫ {type}")
     await state.set_state(CarForm.waiting_for_model)
     await message.answer("Добавим простую машину! Укажите марку: ")
+    #return type
 
 @dp.message(Command('special'))
-async def send_simple(message: types.Message, state=FSMContext):
+async def send_special(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
-    await state.update_data(type=message.text)
+    type=message.text
     await state.set_state(CarForm.waiting_for_spec)
     await message.answer("Добавим специальную машину! Укажите спецализацию: ")
+    #return type
 
 @dp.message(CarForm.waiting_for_spec)
 async def spec_received(message: types.Message, state: FSMContext):
@@ -67,7 +71,7 @@ async def spec_received(message: types.Message, state: FSMContext):
 async def car_up_received(message: types.Message, state: FSMContext):
     await state.update_data(car_up=message.text)
     await state.set_state(CarForm.waiting_for_model)
-    await message.answer("Какую модель?")
+    await message.answer("Какая модель?")
 
 @dp.message(CarForm.waiting_for_model)
 async def model_received(message: types.Message, state: FSMContext):
@@ -98,7 +102,7 @@ async def year_received(message: types.Message, state: FSMContext):
         
         pickle.dump(a, t)
 
-    await message.answer(f"Спасибо! Машина {country} {model} {year} года добавлена.")
+    await message.answer(f"Спасибо! Машина {country} {model} {year} года добавлена. Напищите simple/special чтобы добавить еще!")
     await state.clear()
 #------------------------------------------------------------------------
 async def main():
