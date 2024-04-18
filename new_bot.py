@@ -3,6 +3,8 @@
 
 import asyncio
 
+import pickle
+
 from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup #-----------
 from aiogram.fsm.context import FSMContext #-----------
@@ -25,12 +27,16 @@ class CarForm(StatesGroup): #-----------
     waiting_for_country = State() #-----------
     waiting_for_year = State() #-----------
     waiting_for_car_up = State() #-----------
-    waiting_for_specialization = State() #-----------
+    waiting_for_spec = State() #-----------
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-list = []
+model = None
+country = None
+spec = None
+car_up = None
+year = None
 
 #------------------------------------------------------------------------
 @dp.message(Command('start'))
@@ -40,28 +46,52 @@ async def start_adding_car(message: types.Message):
 @dp.message(Command('simple'))
 async def send_simple(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
-    await state.set_state(CarForm.waiting_for_brand)
-    await message.answer("Вы добавили простую машину! Укажите марку: ")
+    await state.update_data(type=message.text)
+    await state.set_state(CarForm.waiting_for_model)
+    await message.answer("Добавим простую машину! Укажите марку: ")
 
-@dp.message(CarForm.waiting_for_brand)
-async def brand_received(message: types.Message, state: FSMContext):
-    await state.update_data(brand=message.text)
+@dp.message(Command('special'))
+async def send_simple(message: types.Message, state=FSMContext):
+    # Пример обработки команды с установкой состояния
+    await state.update_data(type=message.text)
+    await state.set_state(CarForm.waiting_for_spec)
+    await message.answer("Добавим специальную машину! Укажите спецализацию: ")
+
+@dp.message(CarForm.waiting_for_spec)
+async def spec_received(message: types.Message, state: FSMContext):
+    await state.update_data(spec=message.text)
+    await state.set_state(CarForm.waiting_for_car_up)
+    await message.answer("Какая высота машины?")
+
+@dp.message(CarForm.waiting_for_car_up)
+async def car_up_received(message: types.Message, state: FSMContext):
+    await state.update_data(car_up=message.text)
     await state.set_state(CarForm.waiting_for_model)
     await message.answer("Какую модель?")
 
 @dp.message(CarForm.waiting_for_model)
 async def model_received(message: types.Message, state: FSMContext):
     await state.update_data(model=message.text)
+    await state.set_state(CarForm.waiting_for_country)
+    await message.answer("Какая страна?")
+
+@dp.message(CarForm.waiting_for_country)
+async def country_received(message: types.Message, state: FSMContext):
+    await state.update_data(country=message.text)
     await state.set_state(CarForm.waiting_for_year)
     await message.answer("Какой год выпуска?")
 
 @dp.message(CarForm.waiting_for_year)
 async def year_received(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    brand = data['brand']
     model = data['model']
+    country = data['country']
+    spec = data['spec']
+    car_up = data['car_up']
     year = message.text
 
+    print(f"Тип машины текушший {type}")
+    
     a=(Car(year, country, model))
     
     with open("table.txt", "wb") as t:
