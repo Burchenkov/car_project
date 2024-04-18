@@ -1,5 +1,8 @@
 import openpyxl
 
+# Добавление класса
+
+# Обычное авто
 class Car:
     def __init__(self, car_id, year, country, brand):
         self.car_id = car_id
@@ -7,11 +10,13 @@ class Car:
         self.country = country
         self.brand = brand
 
+# Инженерное авто
 class EngineeringCar(Car):
     def __init__(self, car_id, year, country, brand, payload_capacity, specialization):
         super().__init__(car_id, year, country, brand)
         self.payload_capacity = payload_capacity
         self.specialization = specialization
+
 
     def to_list(self):
         return [self.car_id, self.year, self.country, self.brand, self.payload_capacity, self.specialization]
@@ -29,7 +34,7 @@ class CarStorage:
 
         self.car_list.append(car)
 
-
+# Добавление авто
     def add_car(self):
         year = input("Введите год выпуска машины: ")
         country = input("Введите страну производства: ")
@@ -44,6 +49,7 @@ class CarStorage:
         self.car_list.append(car)
         print("Машина успешно добавлена.")
 
+# Функция добавления машину в excel
     def save_to_excel(self):
         wb = openpyxl.load_workbook(self.file_name)
         ws = wb.active
@@ -54,6 +60,7 @@ class CarStorage:
         wb.save(self.file_name)
         print(f"Данные успешно сохранены в файл {self.file_name}")
 
+# Поиск авто по ID
     def find_car_by_id(self, car_id):
         # Код поиска машины по ID
         for car in self.car_list:
@@ -73,6 +80,16 @@ while True:
 
 car_storage.save_to_excel()
 
+# функция для удаления авто по ID
+def remove_car(self, car_id):
+    car = self.find_car_by_id(car_id)
+    if car is not None:
+        self.car_list.remove(car)
+        print(f"Машина с ID {car_id} успешно удалена.")
+    else:
+        print("Машина с указанным ID не найдена.")
+
+
 while True:
     search_id = int(input("Введите ID машины для поиска: "))
     found_car = car_storage.find_car_by_id(search_id)
@@ -81,6 +98,17 @@ while True:
         print(f"Машина найдена - Марка: {found_car.brand}, Год выпуска: {found_car.year}")
     else:
         print("Машина не найдена.")
+
+# сообщение "Хотите ли вы удалить авто "
+    found_car = car_storage.find_car_by_id(search_id)
+
+    if found_car is not None:
+       print(f"Машина найдена - Марка: {found_car.brand}, Год выпуска: {found_car.year}")
+    choice_remove = input("Хотите удалить эту машину? (да/нет): ")
+    if choice_remove.lower() == 'да':
+        car_storage.remove_car(search_id)
+    else:
+       print("Машина не найдена.")
 
     choice = input("Хотите ли вы продолжить поиск? (да/нет): ")
     if choice.lower() != 'да':
