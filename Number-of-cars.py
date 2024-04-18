@@ -1,45 +1,87 @@
-#Словари для хранения уникальных марок и специализаций
-unique_models = set()
-unique_specializations = set()
-machines = []
+import openpyxl
+
+class Car:
+    def __init__(self, car_id, year, country, brand):
+        self.car_id = car_id
+        self.year = year
+        self.country = country
+        self.brand = brand
+
+class EngineeringCar(Car):
+    def __init__(self, car_id, year, country, brand, payload_capacity, specialization):
+        super().__init__(car_id, year, country, brand)
+        self.payload_capacity = payload_capacity
+        self.specialization = specialization
+
+    def to_list(self):
+        return [self.car_id, self.year, self.country, self.brand, self.payload_capacity, self.specialization]
+class CarStorage:
+    def __init__(self, file_name):
+        self.car_list = []
+        self.next_id = 1
+        self.file_name = file_name
+
+    def add_cars(self, car):
+        # Проверяем, существует ли уже такой ID в списке машин
+        if any(c.id == car.id for c in self.car_list):
+            car.id = self.next_id  # Присваиваем новый уникальный ID
+            self.next_id += 1
+
+        self.car_list.append(car)
+
+
+    def add_car(self):
+        year = input("Введите год выпуска машины: ")
+        country = input("Введите страну производства: ")
+        brand = input("Введите марку машины: ")
+        payload_capacity = input("Введите грузоподъемность: ")
+        specialization = input("Введите специализацию: ")
+
+        car_id = self.next_id
+        self.next_id += 1
+
+        car = EngineeringCar(car_id, year, country, brand, payload_capacity, specialization)
+        self.car_list.append(car)
+        print("Машина успешно добавлена.")
+
+    def save_to_excel(self):
+        wb = openpyxl.load_workbook(self.file_name)
+        ws = wb.active
+
+        for car in self.car_list:
+            ws.append(car.to_list())
+
+        wb.save(self.file_name)
+        print(f"Данные успешно сохранены в файл {self.file_name}")
+
+    def find_car_by_id(self, car_id):
+        # Код поиска машины по ID
+        for car in self.car_list:
+            if car.car_id == car_id:
+                return car
+        return None
+
+# Пример использования
+car_storage = CarStorage("user_cars_data.xlsx")
 
 while True:
-    print("\nМеню:")
-    print("1. Просмотр количества добавленных машин")
-    print("2. Вывести все уникальные марки")
-    print("3. Программа завершена.")
-
-    choice = input("Выберите опцию: ")
-
-    if choice == "1":
-        model = input("Введите марку машины: ")
-        specialization = input("Введите специализацию машины: ")
-        machines.append((model, specialization))
-        unique_models.add(model)
-        unique_specializations.add(specialization)
-        print("Машина успешно добавлена!")
-    elif choice == "1":
-        print(f"Количество добавленных машин: {len(machines)}")
-    elif choice == "2":
-        print("Уникальные марки машин:")
-        for model in unique_models:
-            print(model)
-    elif choice == "3":
-        print("Уникальные специализации машин:")
-        for specialization in unique_specializations:
-            print(specialization)
-    elif choice == "4":
-        print("Программа завершена.")
+    user_input = input("Хотите добавить новую машину? (да/нет): ")
+    if user_input.lower() != 'да':
         break
-    else:
-        print("Некорректный выбор. Попробуйте снова.")
 
-#Пример 2 (Честно спиз***ое)
-"""def view_cars():
-    for key in sorted(cars.keys()):
-        print(f"Количество {key} машин: {len(cars[key])}")
-        unique_brands = set([car.марка for car in cars[key].values()])
-        print(f"Уникальные марки {key} машин: {sorted(list(unique_brands))}")
-        if key == "инженерные":
-            unique_specializations = set([car.специализация for car in cars[key].values()])
-            print(f"Уникальные специализации {key} машин: {sorted(list(unique_specializations))}")"""
+    car_storage.add_car()
+
+car_storage.save_to_excel()
+
+while True:
+    search_id = int(input("Введите ID машины для поиска: "))
+    found_car = car_storage.find_car_by_id(search_id)
+
+    if found_car is not None:
+        print(f"Машина найдена - Марка: {found_car.brand}, Год выпуска: {found_car.year}")
+    else:
+        print("Машина не найдена.")
+
+    choice = input("Хотите ли вы продолжить поиск? (да/нет): ")
+    if choice.lower() != 'да':
+        break
