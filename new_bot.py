@@ -16,6 +16,7 @@ from aiogram.filters.command import Command
 from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from class1 import Car, New_car
 
 API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
@@ -42,10 +43,16 @@ a = None
 
 #------------------------------------------------------------------------
 @dp.message(Command('start'))
-async def start_adding_car(message: types.Message):
-    await message.answer("Какую машину вы хотите добавить? simple/special")
+async def start_adding_car(message: types.Message, state=FSMContext):
+    builder = ReplyKeyboardBuilder()
+    builder.row(
+        types.KeyboardButton(text = 'simple'),
+        types.KeyboardButton(text='special')
+    )
+    print(message.text)
+    await message.answer("Какую машину вы хотите добавить?", reply_markup=builder.as_markup(resize_keyboard=True))
 
-@dp.message(Command('special'))
+@dp.message(F.text.lower() == 'special')
 async def send_special(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
     global type
@@ -55,7 +62,7 @@ async def send_special(message: types.Message, state=FSMContext):
     await message.answer("Добавим специальную машину! Укажите спецализацию: ")
     return type
 
-@dp.message(Command('simple'))
+@dp.message(F.text.lower() == 'simple')
 async def send_simple(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
     global type
@@ -91,28 +98,47 @@ async def country_received(message: types.Message, state: FSMContext):
 @dp.message(CarForm.waiting_for_year)
 async def year_received(message: types.Message, state: FSMContext):
     global a
-    if type == "/simple":
+    if type == "simple":
         data = await state.get_data()
         model = data['model']
         country = data['country']
         year = message.text
-        
         a = Car(year, country, model)
-    elif type == "/special":
+    elif type == "special":
         data = await state.get_data()
         model = data['model']
         country = data['country']
         year = message.text
-        
         a = New_car(year, country, model, car_up, spec)
 
-     
     with open("car.txt", "wb") as t:
         
         pickle.dump(a, t)
-
-    await message.answer(f"Спасибо! Машина {country} {model} {year} года добавлена. Напищите simple/special чтобы добавить еще!")
+    
     await state.clear()
+
+    
+    builder = ReplyKeyboardBuilder()
+    builder.row(
+        types.KeyboardButton(text = 'simple'),
+        types.KeyboardButton(text='special'),
+        types.KeyboardButton(text='exel'),
+        )
+    await message.answer(
+        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?", 
+        reply_markup=builder.as_markup(resize_keyboard=True)
+        )
+
+
+
+@dp.message(F.text.lower() == 'exel')
+async def send_special(message: types.Message, state=FSMContext):
+    # Пример обработки команды с установкой состояния
+
+    await message.answer("Выгружаю в Exel, но это не точно...")
+
+
+
 #------------------------------------------------------------------------
 async def main():
     await dp.start_polling(bot)
