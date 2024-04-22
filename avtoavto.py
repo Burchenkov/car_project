@@ -1,25 +1,31 @@
 all_avto = []
 
-avto = input("Введите название бренда, модель и год авто: ") 
-avto_spisok = [avto]
+while True:
+    avto = input("Введите название бренда, модель и год авто:\n""Введите Опции: ")
+    if avto == "Опции":
+        break
+    avto_spisok = [avto]
+    all_avto.append(avto_spisok)
 
-avto2 = input("Введите название бренда, модель и год авто: ")
-avto_spisok2 = [avto2]
+print("Список авто:")
+for i, avto in enumerate(all_avto, 1):
+    print(f"{i}. {avto}")
 
-if avto2 in avto_spisok:
-        print("Уже есть такая машина")
-else:
-        print("Вы добавили новое авто", avto2)
-all_avto = [avto + avto2]
-# if avto and avto2 == "Exit":
 choice = input("Вы хотите удалить машину из списка? (да/нет): ")
 if choice == "да":
-    index = input("Введите данные машины, которую вы хотите удалить: ")
-    all_avto = [avto,avto2]
-    all_avto.remove(index)
-    print("Машина", index , "удалена!")
+ while True:
+    choice_number = int(input("Введите номер машины из списка, которую вы хотите удалить: "))
+    del all_avto[choice_number - 1]
+    print("Машина под номером", choice_number, "удалена!\n",)
+    print("Список авто после удаление:")
+    for i, avto in enumerate(all_avto, 1):
+        print(f"{i}. {avto}")
+        
+
 else:
     print("Список сохранён!")
+
+
          
 
 
