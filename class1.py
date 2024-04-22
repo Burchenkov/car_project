@@ -1,8 +1,9 @@
 class Car:
-    def __init__(self, year, country, model):
+    def __init__(self, car_id, year, country, model):
         self.year = year
         self.country = country
         self.model = model
+        self.car_id = car_id
 
     def get_year(self):
         return self.year
@@ -12,10 +13,13 @@ class Car:
 
     def get_model(self):
         return self.model
+    
+    def get_year(self):
+        return self.car_id
 
 class New_car(Car):
-    def __init__(self, year, country, model, car_up, specialization):
-        super().__init__(year, country, model)
+    def __init__(self, car_id, year, country, model, car_up, specialization):
+        super().__init__(car_id, year, country, model)
         self.car_up = car_up
         self.specialization = specialization
 
