@@ -111,9 +111,24 @@ async def year_received(message: types.Message, state: FSMContext):
         year = message.text
         a = New_car(year, country, model, car_up, spec)
 
-    with open("car.txt", "wb") as t:
-        
-        pickle.dump(a, t)
+    def save_cars_to_file(cars, file_path):
+    with open(file_path, "w") as file:
+        json.dump(cars, file, cls=CarEncoder, indent=4)
+
+# def load_cars_from_file(file_path):
+#     def car_decoder(dct):
+#         if 'specialization' in dct:
+#             return New_car(**dct)
+#         return Car(**dct)
+
+#     try:
+#         with open(file_path, "r") as file:
+#             return {int(car_id): car_decoder(car) for car_id, car in json.load(file).items()}
+#     except FileNotFoundError:
+#         return {}
+    
+FILE_PATH = "cars.json"
+cars = load_cars_from_file(FILE_PATH)
     
     await state.clear()
 
