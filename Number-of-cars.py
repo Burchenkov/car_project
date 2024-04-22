@@ -99,7 +99,7 @@ while True:
     else:
         print("Машина не найдена.")
 
-# сообщение "Хотите ли вы удалить авто "
+# сообщение "Хотите ли вы удалить авто " + "Найти машину по ID"
     found_car = car_storage.find_car_by_id(search_id)
 
     if found_car is not None:

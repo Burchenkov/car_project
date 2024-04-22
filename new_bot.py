@@ -8,11 +8,11 @@ import pickle
 from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup #-----------
 from aiogram.fsm.context import FSMContext #-----------
-from aiogram.filters.command import CommandStart  #----------- 
 from aiogram.filters.command import CommandStart  #-----------
-from aiogram.filters.state import Filter #-----------  
+from aiogram.filters.command import CommandStart  #-----------
+from aiogram.filters.state import Filter #-----------
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command 
+from aiogram.filters.command import Command
 from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
@@ -114,12 +114,12 @@ async def year_received(message: types.Message, state: FSMContext):
         a = New_car(year, country, model, car_up, spec)
 
     with open("car.txt", "wb") as t:
-        
+
         pickle.dump(a, t)
-    
+
     await state.clear()
 
-    
+
     builder = ReplyKeyboardBuilder()
     builder.row(
         types.KeyboardButton(text = 'simple'),
@@ -127,7 +127,7 @@ async def year_received(message: types.Message, state: FSMContext):
         types.KeyboardButton(text = 'exel'),
         )
     await message.answer(
-        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?", 
+        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?",
         reply_markup=builder.as_markup(resize_keyboard=True)
         )
 
@@ -135,17 +135,19 @@ async def year_received(message: types.Message, state: FSMContext):
 @dp.message(F.text.lower() == 'exel')
 async def send_special(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
-    def save_to_excel(self): 
-        wb = openpyxl.load_workbook(self.file_name) 
-        ws = wb.active 
- 
-        for car in self.car_list: 
-            ws.append(car.to_list()) 
- 
-        wb.save(self.file_name) 
-        #print(f"Данные успешно сохранены в файл {self.file_name}")
+    def save_to_excel(self):
+        wb = openpyxl.load_workbook(self.user_cars_data.xlsx)
+        ws = wb.active
 
-    await message.answer(f"Данные успешно сохранены в файл {self.file_name}, но это не точно...")
+        for car in self.car_list:
+            ws.append(car.to_list())
+
+        wb.save(self.user_cars_data.xlsx)
+        #print(f"Данные успешно сохранены в файл {self.user_cars_data.xlsx}")
+
+
+
+    await message.answer(f"Данные успешно сохранены в файл {self.user_cars_data.xlsx}, но это не точно...")
 
 
 
