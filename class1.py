@@ -1,3 +1,4 @@
+import json
 
 class Car:
     def __init__(self, year, country, model):
@@ -47,6 +48,12 @@ class New_car(Car):
     def __setstate__(self, state: object):
         self.spec = state["spec"]
         self.car_up = state["car_up"]
+
+class CarEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (Car, New_car)):
+            return obj.__dict__
+        return super().default(obj)
 
 
 

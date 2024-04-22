@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-
-import pickle
+import json
 
 from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup #-----------
@@ -17,7 +16,7 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
-from class1 import Car, New_car
+from class1 import Car, New_car, CarEncoder
 
 API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
 # API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
@@ -39,7 +38,49 @@ spec = None
 car_up = None
 year = None
 type = None
-a = None
+car_id = None
+
+def save_cars_to_file(cars, file_path):
+    with open(file_path, "w") as file:
+        json.dump(cars, file, cls=CarEncoder, indent=4)
+
+def load_cars_from_file(file_path):
+    def car_decoder(dct):
+        if 'spec' in dct:
+            return New_car(**dct)
+        return Car(**dct)
+
+    try:
+        with open(file_path, "r") as file:
+            return {int(car_id): car_decoder(car) for car_id, car in json.load(file).items()}
+    except FileNotFoundError:
+        return {}
+
+FILE_PATH = "cars.json"
+cars = []
+
+import openpyxl
+
+def to_list(self): 
+        return [self.car_id, self.year, self.country, self.brand, self.payload_capacity, self.specialization] 
+class CarStorage: 
+    def __init__(self, file_name): 
+        self.car_list = [] 
+        self.next_id = 1 
+        self.file_name = file_name
+
+
+def save_to_excel(self): 
+    wb = openpyxl.load_workbook(self.user_cars_data.xlsx) 
+    ws = wb.active 
+
+    for car_list in self.cars: 
+        ws.append(сar.to_list()) 
+
+    wb.save(self.user_cars_data.xlsx) 
+    #print(f"Данные успешно сохранены в файл {self.user_cars_data.xlsx}")
+
+file_xlsx = CarStorage("user_cars_data.xlsx")
 
 #------------------------------------------------------------------------
 @dp.message(Command('start'))
@@ -103,36 +144,20 @@ async def year_received(message: types.Message, state: FSMContext):
         model = data['model']
         country = data['country']
         year = message.text
-        a = Car(year, country, model)
+        main_car = Car(year, country, model)
     elif type == "special":
         data = await state.get_data()
         model = data['model']
         country = data['country']
         year = message.text
-        a = New_car(year, country, model, car_up, spec)
+        main_car = New_car(year, country, model, car_up, spec)
 
-    def save_cars_to_file(cars, file_path):
-    with open(file_path, "w") as file:
-        json.dump(cars, file, cls=CarEncoder, indent=4)
+    cars.append(main_car)
+    save_cars_to_file(cars, FILE_PATH)
 
-# def load_cars_from_file(file_path):
-#     def car_decoder(dct):
-#         if 'specialization' in dct:
-#             return New_car(**dct)
-#         return Car(**dct)
-
-#     try:
-#         with open(file_path, "r") as file:
-#             return {int(car_id): car_decoder(car) for car_id, car in json.load(file).items()}
-#     except FileNotFoundError:
-#         return {}
-    
-FILE_PATH = "cars.json"
-cars = load_cars_from_file(FILE_PATH)
-    
+    await message.answer("Машина записана в файл")
     await state.clear()
-
-    
+        
     builder = ReplyKeyboardBuilder()
     builder.row(
         types.KeyboardButton(text = 'simple'),
@@ -145,10 +170,12 @@ cars = load_cars_from_file(FILE_PATH)
         )
 
 
-
 @dp.message(F.text.lower() == 'exel')
 async def send_special(message: types.Message, state=FSMContext):
-    # Пример обработки команды с установкой состояния
+    
+    car_list = load_cars_from_file(FILE_PATH)
+    print(cars)
+    save_to_excel()
 
     await message.answer("Выгружаю в Exel, но это не точно...")
 
