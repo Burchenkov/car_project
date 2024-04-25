@@ -162,6 +162,8 @@ async def year_received(message: types.Message, state: FSMContext):
     builder.row(
         types.KeyboardButton(text = 'simple'),
         types.KeyboardButton(text='special'),
+        )
+    builder.row(
         types.KeyboardButton(text='exel'),
         )
     await message.answer(
@@ -169,13 +171,14 @@ async def year_received(message: types.Message, state: FSMContext):
         reply_markup=builder.as_markup(resize_keyboard=True)
         )
 
+import pandas as pd
+import pandas
 
 @dp.message(F.text.lower() == 'exel')
 async def send_special(message: types.Message, state=FSMContext):
-    
-    car_list = load_cars_from_file(FILE_PATH)
-    print(cars)
-    save_to_excel()
+    print(f'тачка на прокачку {cars}')
+        
+    pandas.read_json("cars.json").to_excel("cars.xlsx")    
 
     await message.answer("Выгружаю в Exel, но это не точно...")
 
