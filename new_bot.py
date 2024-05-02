@@ -28,6 +28,8 @@ class CarForm(StatesGroup): #-----------
     waiting_for_year = State() #-----------
     waiting_for_car_up = State() #-----------
     waiting_for_spec = State() #-----------
+    waiting_for_car_id = State() #-----------
+    
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
@@ -55,14 +57,49 @@ def load_cars_from_file(file_path):
             return {int(car_id): car_decoder(car) for car_id, car in json.load(file).items()}
     except FileNotFoundError:
         return {}
+    
+def view_cars():
+    print("\n===========================")
+    print(f"Количество машин: {len(cars)}")
+    unique_brands = set([car.model for car in cars.values()])
+    print(f"Уникальные марки машин: {sorted(list(unique_brands))}")
+    print("===========================")
+
+    for car_type, car_list in cars.items():
+        if car_type == "инженерные":
+            print("\n===========================")
+            unique_specializations = set([car.spec for car in car_list.values()])
+            print(f"Уникальные специализации {car_type} машин: {sorted(list(unique_specializations))}")
+            print("===========================")
+
+def remove_car(car_id):
+    print("\n---------------------------")
+    
+    try:
+        if car_id in cars:
+            del cars[car_id]
+            save_cars_to_file(cars, FILE_PATH)
+            print("\n---------------------------")
+            print("Машина успешно удалена.")
+            print("---------------------------")
+        else:
+            print("\n!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
+            print("Машины с таким ID нет в справочнике.")
+            print("!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
+    except ValueError:
+        print("\n!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
+        print("ID должен быть числом.")
+        print("!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
+
 
 FILE_PATH = "cars.json"
-cars = []
+cars = {}
+car_id = 0
 
 import openpyxl
 
 def to_list(self): 
-        return [self.car_id, self.year, self.country, self.brand, self.payload_capacity, self.specialization] 
+        return [self.car_id, self.year, self.country, self.model, self.car_up, self.spec] 
 class CarStorage: 
     def __init__(self, file_name): 
         self.car_list = [] 
@@ -75,12 +112,13 @@ def save_to_excel(self):
     ws = wb.active 
 
     for car_list in self.cars: 
-        ws.append(сar.to_list()) 
+        ws.append(self.to_list()) 
 
     wb.save(self.user_cars_data.xlsx) 
     #print(f"Данные успешно сохранены в файл {self.user_cars_data.xlsx}")
 
 file_xlsx = CarStorage("user_cars_data.xlsx")
+
 
 #------------------------------------------------------------------------
 @dp.message(Command('start'))
@@ -136,23 +174,27 @@ async def country_received(message: types.Message, state: FSMContext):
     await state.set_state(CarForm.waiting_for_year)
     await message.answer("Какой год выпуска?")
 
+
 @dp.message(CarForm.waiting_for_year)
 async def year_received(message: types.Message, state: FSMContext):
     global a
     if type == "simple":
         data = await state.get_data()
+        car_id = len(cars) + 1
         model = data['model']
         country = data['country']
         year = message.text
-        main_car = Car(year, country, model)
+        main_car = Car(car_id, year, country, model)
     elif type == "special":
+        car_id = len(cars) + 1
         data = await state.get_data()
         model = data['model']
         country = data['country']
         year = message.text
-        main_car = New_car(year, country, model, car_up, spec)
+        main_car = New_car(car_id, year, country, model, car_up, spec)
 
-    cars.append(main_car)
+    print(f"!!!! {car_id} !!!!")
+    cars[car_id] = main_car
     save_cars_to_file(cars, FILE_PATH)
 
     await message.answer("Машина записана в файл")
@@ -165,6 +207,7 @@ async def year_received(message: types.Message, state: FSMContext):
         )
     builder.row(
         types.KeyboardButton(text='exel'),
+        types.KeyboardButton(text='delete')
         )
     await message.answer(
         "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?", 
@@ -175,13 +218,27 @@ import pandas as pd
 import pandas
 
 @dp.message(F.text.lower() == 'exel')
-async def send_special(message: types.Message, state=FSMContext):
+async def send_exel(message: types.Message, state=FSMContext):
     print(f'тачка на прокачку {cars}')
         
     pandas.read_json("cars.json").to_excel("cars.xlsx")    
 
     await message.answer("Выгружаю в Exel, но это не точно...")
 
+@dp.message(F.text.lower() == 'delete')
+async def send_car_id(message: types.Message, state=FSMContext):
+    
+    await state.set_state(CarForm.waiting_for_car_id)
+    await message.answer("Укажите id, для удаления? ")
+
+@dp.message(CarForm.waiting_for_car_id)
+async def car_id_received(message: types.Message, state: FSMContext):
+    await state.update_data(car_id=message.text)
+    print(f"!!! {type(car_id)} !!!")
+    await state.clear()
+    remove_car(car_id)
+    await message.answer(f"Машина с ID {car_id} типо удалена...")
+    pandas.read_json("cars.json").to_excel("cars.xlsx")
 
 
 #------------------------------------------------------------------------

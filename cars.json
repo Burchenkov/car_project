@@ -1,7 +1,8 @@
-[
-    {
-        "year": "2010",
-        "country": "Germany",
-        "model": "bmw"
+{
+    "1": {
+        "year": "123",
+        "country": "\u0432\u0432\u0432",
+        "model": "\u0438\u0438\u0438",
+        "car_id": 1
     }
-]
+}

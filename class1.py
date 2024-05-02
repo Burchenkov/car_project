@@ -16,21 +16,26 @@ class Car:
     def get_model(self):
         return self.model
     
+    def get_car_id(self):
+        return self.car_id
+    
     def __getstate__(self) -> object:
         state = {}
+        state["car_id"] = self.car_id
         state["year"] = self.year
         state["country"] = self.country
         state["model"] = self.model
         return state
     
     def __setstate__(self, state: object):
+        self.car_id = state["car_id"]
         self.year = state["year"]
         self.country = state["country"]
         self.model = state["model"]
 
 class New_car(Car):
-    def __init__(self, year, country, model, car_up, spec):
-        super().__init__(year, country, model)
+    def __init__(self, car_id, year, country, model, car_up, spec):
+        super().__init__(car_id, year, country, model)
         self.car_up = car_up
         self.spec = spec
 
