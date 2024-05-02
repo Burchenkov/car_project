@@ -1,10 +1,11 @@
 import json
 
 class Car:
-    def __init__(self, year, country, model):
+    def __init__(self, car_id, year, country, model):
         self.year = year
         self.country = country
         self.model = model
+        self.car_id = car_id
 
     def get_year(self):
         return self.year
