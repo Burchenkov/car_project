@@ -9,7 +9,7 @@ def save_cars_to_file(cars, file_path):
 
 def load_cars_from_file(file_path):
     def car_decoder(dct):
-        if 'specialization' in dct:
+        if 'spec' in dct:
             return New_car(**dct)
         return Car(**dct)
 
@@ -39,9 +39,9 @@ def add_car():
         year = input("Введите год выпуска машины: ")
         country = input("Введите страну выпуска машины: ")
         model = input("Введите марку машины: ")
-        carrying_capacity = input("Введите грузоподъемность машины: ")
-        specialization = input("Введите специализацию машины: ")
-        main_car = New_car(car_id, year, country, model, carrying_capacity, specialization)
+        car_up = input("Введите грузоподъемность машины: ")
+        spec = input("Введите специализацию машины: ")
+        main_car = New_car(car_id, year, country, model, car_up, spec)
 
     else:
         print("\n!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
@@ -62,7 +62,7 @@ def view_cars():
     for car_type, car_list in cars.items():
         if car_type == "инженерные":
             print("\n===========================")
-            unique_specializations = set([car.specialization for car in car_list.values()])
+            unique_specializations = set([car.spec for car in car_list.values()])
             print(f"Уникальные специализации {car_type} машин: {sorted(list(unique_specializations))}")
             print("===========================")
 
