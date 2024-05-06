@@ -3,13 +3,14 @@
 
 import asyncio
 import json
+# import openpyxl
 
 from aiogram import Router, F
-from aiogram.fsm.state import State, StatesGroup #-----------
-from aiogram.fsm.context import FSMContext #-----------
-from aiogram.filters.command import CommandStart  #----------- 
-from aiogram.filters.command import CommandStart  #-----------
-from aiogram.filters.state import Filter #-----------  
+from aiogram.fsm.state import State, StatesGroup 
+from aiogram.fsm.context import FSMContext 
+from aiogram.filters.command import CommandStart   
+from aiogram.filters.command import CommandStart  
+from aiogram.filters.state import Filter   
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command 
 from aiogram.types import ReplyKeyboardRemove, \
@@ -22,14 +23,14 @@ from class1 import Car, New_car, CarEncoder
 API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
 
 
-class CarForm(StatesGroup): #-----------
-    waiting_for_model = State() #-----------
-    waiting_for_country = State() #-----------
-    waiting_for_year = State() #-----------
-    waiting_for_car_up = State() #-----------
-    waiting_for_spec = State() #-----------
-    waiting_for_car_id = State() #-----------
-    
+class CarForm(StatesGroup): 
+    waiting_for_model = State() 
+    waiting_for_country = State() 
+    waiting_for_year = State() 
+    waiting_for_car_up = State() 
+    waiting_for_spec = State() 
+    waiting_for_car_id = State() 
+    waiting_for_type = State()
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
@@ -58,6 +59,7 @@ def load_cars_from_file(file_path):
     except FileNotFoundError:
         return {}
     
+    #Просмотр списка машин(кол-во, бренды, специализации) 
 def view_cars():
     print("\n===========================")
     print(f"Количество машин: {len(cars)}")
@@ -71,7 +73,8 @@ def view_cars():
             unique_specializations = set([car.spec for car in car_list.values()])
             print(f"Уникальные специализации {car_type} машин: {sorted(list(unique_specializations))}")
             print("===========================")
-
+            
+    #Удаление машины по id 
 def remove_car(car_id):
     print("\n---------------------------")
     
@@ -96,7 +99,6 @@ FILE_PATH = "cars.json"
 cars = {}
 car_id = 0
 
-import openpyxl
 
 def to_list(self): 
         return [self.car_id, self.year, self.country, self.model, self.car_up, self.spec] 
@@ -119,8 +121,9 @@ def save_to_excel(self):
 
 file_xlsx = CarStorage("user_cars_data.xlsx")
 
+#-------------------------------------------------------------
+#ветвление диалогов в боте 
 
-#------------------------------------------------------------------------
 @dp.message(Command('start'))
 async def start_adding_car(message: types.Message, state=FSMContext):
     builder = ReplyKeyboardBuilder()
@@ -128,9 +131,19 @@ async def start_adding_car(message: types.Message, state=FSMContext):
         types.KeyboardButton(text = 'simple'),
         types.KeyboardButton(text='special')
     )
-    print(message.text)
     await message.answer("Какую машину вы хотите добавить?", reply_markup=builder.as_markup(resize_keyboard=True))
 
+#начало добавления обычной машины
+@dp.message(F.text.lower() == 'simple')
+async def send_simple(message: types.Message, state=FSMContext):
+    # Пример обработки команды с установкой состояния
+    global type
+    type=message.text
+    print(f"ТИП МАШИНЫ {type}")
+    await state.set_state(CarForm.waiting_for_model)
+    await message.answer("Добавим простую машину! Укажите марку: ")
+    
+#начало добавления специальной машины
 @dp.message(F.text.lower() == 'special')
 async def send_special(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
@@ -141,40 +154,30 @@ async def send_special(message: types.Message, state=FSMContext):
     await message.answer("Добавим специальную машину! Укажите спецализацию: ")
     return type
 
-@dp.message(F.text.lower() == 'simple')
-async def send_simple(message: types.Message, state=FSMContext):
-    # Пример обработки команды с установкой состояния
-    global type
-    type=message.text
-    print(f"ТИП МАШИНЫ {type}")
-    await state.set_state(CarForm.waiting_for_model)
-    await message.answer("Добавим простую машину! Укажите марку: ")
-
+#добавление добавление спецализации
 @dp.message(CarForm.waiting_for_spec)
 async def spec_received(message: types.Message, state: FSMContext):
     await state.update_data(spec=message.text)
     await state.set_state(CarForm.waiting_for_car_up)
     await message.answer("Какая высота машины?")
-
+    
+#добавление высоты спец-машины 
 @dp.message(CarForm.waiting_for_car_up)
 async def car_up_received(message: types.Message, state: FSMContext):
     await state.update_data(car_up=message.text)
     await state.set_state(CarForm.waiting_for_model)
     await message.answer("Какая модель?")
+    
 
-@dp.message(CarForm.simple_model)
-async def model_received(message: types.Message, state: FSMContext):
-    await state.update_data(model=message.text)
-    await state.set_state(CarForm.waiting_for_country)
-    await message.answer("Какая страна?")
 
+#добавление страны 
 @dp.message(CarForm.waiting_for_country)
 async def country_received(message: types.Message, state: FSMContext):
     await state.update_data(country=message.text)
     await state.set_state(CarForm.waiting_for_year)
     await message.answer("Какой год выпуска?")
 
-
+#добавление года выпуска
 @dp.message(CarForm.waiting_for_year)
 async def year_received(message: types.Message, state: FSMContext):
     global a
@@ -192,6 +195,13 @@ async def year_received(message: types.Message, state: FSMContext):
         country = data['country']
         year = message.text
         main_car = New_car(car_id, year, country, model, car_up, spec)
+        
+#добавление модели 
+@dp.message(CarForm.waiting_for_model)
+async def model_received(message: types.Message, state: FSMContext):
+    await state.update_data(model=message.text)
+    await state.set_state(CarForm.waiting_for_country)
+    await message.answer("Какая страна?")
 
     print(f"!!!! {car_id} !!!!")
     cars[car_id] = main_car
@@ -239,9 +249,8 @@ async def car_id_received(message: types.Message, state: FSMContext):
     remove_car(car_id)
     await message.answer(f"Машина с ID {car_id} типо удалена...")
     pandas.read_json("cars.json").to_excel("cars.xlsx")
+#-------------------------------------------------------------
 
-
-#------------------------------------------------------------------------
 async def main():
     await dp.start_polling(bot)
 
