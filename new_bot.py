@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-from cars_data import add_car, show_cars 
+import json
+
+from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup #-----------
 from aiogram.fsm.context import FSMContext #-----------
+from aiogram.filters.command import CommandStart  #----------- 
 from aiogram.filters.command import CommandStart  #-----------
 from aiogram.filters.state import Filter #-----------  
 from aiogram import Bot, Dispatcher, types
@@ -12,121 +15,232 @@ from aiogram.filters.command import Command
 from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
-from class1 import Car
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from class1 import Car, New_car, CarEncoder
 
 # API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
 API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
 
 
 class CarForm(StatesGroup): #-----------
-    simple_brand = State() #-----------
-    simple_model = State() #-----------
-    simple_year = State() #-----------
-    special_brand = State() #-----------
-    special_model = State() #-----------
-    special_year = State() #-----------
+    waiting_for_model = State() #-----------
+    waiting_for_country = State() #-----------
+    waiting_for_year = State() #-----------
+    waiting_for_car_up = State() #-----------
+    waiting_for_spec = State() #-----------
+    waiting_for_car_id = State() #-----------
+    
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-list = []
+model = None
+country = None
+spec = None
+car_up = None
+year = None
+type = None
+car_id = None
 
-add_car("lada", "priora", 2000)
-show_cars()
-add_car("fe", "peeee", 2020)
-show_cars()
-add_car("ffa", "eeeea", 2030)
-show_cars()
+def save_cars_to_file(cars, file_path):
+    with open(file_path, "w") as file:
+        json.dump(cars, file, cls=CarEncoder, indent=4)
 
-# @dp.message(Command('start'))
-# async def send_welcome(message: types.Message):
-#     await message.answer("Привет! Я бот для ввода машин "
-#                          "Какую машину хотите добавить, напишите simple,или special? " 
-#                          "Если хотите выйти, наберите exit")
+def load_cars_from_file(file_path):
+    def car_decoder(dct):
+        if 'spec' in dct:
+            return New_car(**dct)
+        return Car(**dct)
 
-
-    # @dp.message(Command('exit'))
-    # async def send_bye(message: types.Message):
-    #     await message.answer("Пока пока, заходи если что!")
-        
- 
-# @dp.message(Command('simple'))
-# async def send_simple(message: types.Message):
-#     marks = None
-#     yoc = None
-#     country = None
+    try:
+        with open(file_path, "r") as file:
+            return {int(car_id): car_decoder(car) for car_id, car in json.load(file).items()}
+    except FileNotFoundError:
+        return {}
     
-#     await message.answer("Вы добавили простую машину! Укажите марку: ")
-#     # list.append(Car(0,"", message.text))
-#     # print(list[0])
-#     @dp.message()
-#     async def data(message: types.Message, this_marks, yoc, country):
-#         this_marks = marks
+def view_cars():
+    print("\n===========================")
+    print(f"Количество машин: {len(cars)}")
+    unique_brands = set([car.model for car in cars.values()])
+    print(f"Уникальные марки машин: {sorted(list(unique_brands))}")
+    print("===========================")
 
-#         await message.reply(f"Вы добавили марку {marks}")
+    for car_type, car_list in cars.items():
+        if car_type == "инженерные":
+            print("\n===========================")
+            unique_specializations = set([car.spec for car in car_list.values()])
+            print(f"Уникальные специализации {car_type} машин: {sorted(list(unique_specializations))}")
+            print("===========================")
 
-        
+def remove_car(car_id):
+    print("\n---------------------------")
+    
+    try:
+        if car_id in cars:
+            del cars[car_id]
+            save_cars_to_file(cars, FILE_PATH)
+            print("\n---------------------------")
+            print("Машина успешно удалена.")
+            print("---------------------------")
+        else:
+            print("\n!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
+            print("Машины с таким ID нет в справочнике.")
+            print("!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
+    except ValueError:
+        print("\n!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
+        print("ID должен быть числом.")
+        print("!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
 
-    # year = int(input("Введите год: \n"))
-    # country = input("Введите страну: \n")
-    # mark = input("Введите марку: \n")
 
-    # list.append( Car(year, country, mark) )
+FILE_PATH = "cars.json"
+cars = {}
+car_id = 0
 
-    # print(list[0].country)
+import openpyxl
+
+def to_list(self): 
+        return [self.car_id, self.year, self.country, self.model, self.car_up, self.spec] 
+class CarStorage: 
+    def __init__(self, file_name): 
+        self.car_list = [] 
+        self.next_id = 1 
+        self.file_name = file_name
 
 
-# @dp.message(Command('special'))
-# async def send_special(message: types.Message):
-#     type = "special"
+def save_to_excel(self): 
+    wb = openpyxl.load_workbook(self.user_cars_data.xlsx) 
+    ws = wb.active 
 
+    for car_list in self.cars: 
+        ws.append(self.to_list()) 
 
-# async def send_mark(message: types.Message):
-#     await message.reply("Введите марку")
+    wb.save(self.user_cars_data.xlsx) 
+    #print(f"Данные успешно сохранены в файл {self.user_cars_data.xlsx}")
+
+file_xlsx = CarStorage("user_cars_data.xlsx")
+
 
 #------------------------------------------------------------------------
 @dp.message(Command('start'))
-async def start_adding_car(message: types.Message):
-    await message.answer("Какую машину вы хотите добавить? simple/special")
+async def start_adding_car(message: types.Message, state=FSMContext):
+    builder = ReplyKeyboardBuilder()
+    builder.row(
+        types.KeyboardButton(text = 'simple'),
+        types.KeyboardButton(text='special')
+    )
+    print(message.text)
+    await message.answer("Какую машину вы хотите добавить?", reply_markup=builder.as_markup(resize_keyboard=True))
 
-@dp.message(Command('simple'))
+@dp.message(F.text.lower() == 'special')
+async def send_special(message: types.Message, state=FSMContext):
+    # Пример обработки команды с установкой состояния
+    global type
+    type=message.text
+    print(f"ТИП МАШИНЫ {type}")
+    await state.set_state(CarForm.waiting_for_spec)
+    await message.answer("Добавим специальную машину! Укажите спецализацию: ")
+    return type
+
+@dp.message(F.text.lower() == 'simple')
 async def send_simple(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
-    await state.set_state(CarForm.simple_brand)
-    await message.answer("Вы добавили простую машину! Укажите марку: ")
+    global type
+    type=message.text
+    print(f"ТИП МАШИНЫ {type}")
+    await state.set_state(CarForm.waiting_for_model)
+    await message.answer("Добавим простую машину! Укажите марку: ")
 
-@dp.message(CarForm.simple_brand)
-async def brand_received(message: types.Message, state: FSMContext):
-    await state.update_data(brand=message.text)
-    await state.set_state(CarForm.simple_model)
-    await message.answer("Какую модель?")
+@dp.message(CarForm.waiting_for_spec)
+async def spec_received(message: types.Message, state: FSMContext):
+    await state.update_data(spec=message.text)
+    await state.set_state(CarForm.waiting_for_car_up)
+    await message.answer("Какая высота машины?")
+
+@dp.message(CarForm.waiting_for_car_up)
+async def car_up_received(message: types.Message, state: FSMContext):
+    await state.update_data(car_up=message.text)
+    await state.set_state(CarForm.waiting_for_model)
+    await message.answer("Какая модель?")
 
 @dp.message(CarForm.simple_model)
 async def model_received(message: types.Message, state: FSMContext):
     await state.update_data(model=message.text)
-    await state.set_state(CarForm.simple_year)
+    await state.set_state(CarForm.waiting_for_country)
+    await message.answer("Какая страна?")
+
+@dp.message(CarForm.waiting_for_country)
+async def country_received(message: types.Message, state: FSMContext):
+    await state.update_data(country=message.text)
+    await state.set_state(CarForm.waiting_for_year)
     await message.answer("Какой год выпуска?")
 
-@dp.message(CarForm.simple_year)
+
+@dp.message(CarForm.waiting_for_year)
 async def year_received(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    brand = data['brand']
-    model = data['model']
-    year = message.text
-    await message.answer(f"Спасибо! Машина {brand} {model} {year} года добавлена.")
+    global a
+    if type == "simple":
+        data = await state.get_data()
+        car_id = len(cars) + 1
+        model = data['model']
+        country = data['country']
+        year = message.text
+        main_car = Car(car_id, year, country, model)
+    elif type == "special":
+        car_id = len(cars) + 1
+        data = await state.get_data()
+        model = data['model']
+        country = data['country']
+        year = message.text
+        main_car = New_car(car_id, year, country, model, car_up, spec)
+
+    print(f"!!!! {car_id} !!!!")
+    cars[car_id] = main_car
+    save_cars_to_file(cars, FILE_PATH)
+
+    await message.answer("Машина записана в файл")
     await state.clear()
+        
+    builder = ReplyKeyboardBuilder()
+    builder.row(
+        types.KeyboardButton(text = 'simple'),
+        types.KeyboardButton(text='special'),
+        )
+    builder.row(
+        types.KeyboardButton(text='exel'),
+        types.KeyboardButton(text='delete')
+        )
+    await message.answer(
+        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?", 
+        reply_markup=builder.as_markup(resize_keyboard=True)
+        )
 
-@dp.message(Command('special'))
-async def send_simple(message: types.Message, state=FSMContext):
-    # Пример обработки команды с установкой состояния
-    await state.set_state(CarForm.special_brand)
-    await message.answer("Вы добавили специализированную машину! Укажите марку: ")
+import pandas as pd
+import pandas
 
-@dp.message(CarForm.special_brand)
-async def brand_received(message: types.Message, state: FSMContext):
-    await state.update_data(brand=message.text)
-    await state.set_state(CarForm.special_model)
-    await message.answer("Какую модель?")
+@dp.message(F.text.lower() == 'exel')
+async def send_exel(message: types.Message, state=FSMContext):
+    print(f'тачка на прокачку {cars}')
+        
+    pandas.read_json("cars.json").to_excel("cars.xlsx")    
+
+    await message.answer("Выгружаю в Exel, но это не точно...")
+
+@dp.message(F.text.lower() == 'delete')
+async def send_car_id(message: types.Message, state=FSMContext):
+    
+    await state.set_state(CarForm.waiting_for_car_id)
+    await message.answer("Укажите id, для удаления? ")
+
+@dp.message(CarForm.waiting_for_car_id)
+async def car_id_received(message: types.Message, state: FSMContext):
+    await state.update_data(car_id=message.text)
+    print(f"!!! {type(car_id)} !!!")
+    await state.clear()
+    remove_car(car_id)
+    await message.answer(f"Машина с ID {car_id} типо удалена...")
+    pandas.read_json("cars.json").to_excel("cars.xlsx")
+
+
 #------------------------------------------------------------------------
 async def main():
     await dp.start_polling(bot)
