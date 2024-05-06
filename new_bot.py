@@ -18,8 +18,8 @@ from aiogram.types import ReplyKeyboardRemove, \
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from class1 import Car, New_car, CarEncoder
 
-API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
-# API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
+# API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
+API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
 
 
 class CarForm(StatesGroup): #-----------
@@ -165,7 +165,7 @@ async def car_up_received(message: types.Message, state: FSMContext):
     await state.set_state(CarForm.waiting_for_model)
     await message.answer("Какая модель?")
 
-@dp.message(CarForm.waiting_for_model)
+@dp.message(CarForm.simple_model)
 async def model_received(message: types.Message, state: FSMContext):
     await state.update_data(model=message.text)
     await state.set_state(CarForm.waiting_for_country)
