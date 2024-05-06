@@ -34,13 +34,19 @@ class CarForm(StatesGroup): #-----------
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-model = None
-country = None
-spec = None
-car_up = None
-year = None
-type = None
-car_id = None
+# model = None
+# country = None
+# spec = None
+# car_up = None
+# year = None
+# type = None
+# car_id = None
+
+FILE_PATH = "cars.json"
+cars = {}
+car_id = 0
+
+# Функции для добавления и записи в JSON, удаления
 
 def save_cars_to_file(cars, file_path):
     with open(file_path, "w") as file:
@@ -92,9 +98,6 @@ def remove_car(car_id):
         print("!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
 
 
-FILE_PATH = "cars.json"
-cars = {}
-car_id = 0
 
 import openpyxl
 
@@ -193,7 +196,7 @@ async def year_received(message: types.Message, state: FSMContext):
         year = message.text
         main_car = New_car(car_id, year, country, model, car_up, spec)
 
-    print(f"!!!! {car_id} !!!!")
+    print(f"! Машина записана с ID - {car_id} !")
     cars[car_id] = main_car
     save_cars_to_file(cars, FILE_PATH)
 
@@ -217,6 +220,8 @@ async def year_received(message: types.Message, state: FSMContext):
 import pandas as pd
 import pandas
 
+# Конвертация в EXEL
+
 @dp.message(F.text.lower() == 'exel')
 async def send_exel(message: types.Message, state=FSMContext):
     print(f'тачка на прокачку {cars}')
@@ -224,6 +229,8 @@ async def send_exel(message: types.Message, state=FSMContext):
     pandas.read_json("cars.json").to_excel("cars.xlsx")    
 
     await message.answer("Выгружаю в Exel, но это не точно...")
+
+# Удаление машины по ID
 
 @dp.message(F.text.lower() == 'delete')
 async def send_car_id(message: types.Message, state=FSMContext):
@@ -234,9 +241,9 @@ async def send_car_id(message: types.Message, state=FSMContext):
 @dp.message(CarForm.waiting_for_car_id)
 async def car_id_received(message: types.Message, state: FSMContext):
     await state.update_data(car_id=message.text)
-    print(f"!!! {type(car_id)} !!!")
-    await state.clear()
-    remove_car(car_id)
+    print(f"!!! {car_id} !!!")
+    
+    #remove_car(car_id)
     await message.answer(f"Машина с ID {car_id} типо удалена...")
     pandas.read_json("cars.json").to_excel("cars.xlsx")
 
