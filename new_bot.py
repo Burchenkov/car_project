@@ -3,7 +3,7 @@
 
 import asyncio
 import json
-# import openpyxl
+import openpyxl
 
 from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup 
@@ -19,9 +19,8 @@ from aiogram.types import ReplyKeyboardRemove, \
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from class1 import Car, New_car, CarEncoder
 
-# API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
-API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
-
+API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
+# API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
 
 class CarForm(StatesGroup): 
     waiting_for_model = State() 
@@ -35,23 +34,16 @@ class CarForm(StatesGroup):
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-# model = None
-# country = None
-# spec = None
-# car_up = None
-# year = None
-# type = None
-# car_id = None
 
-FILE_PATH = "cars.json"
-cars = {}
-car_id = 0
-
-# Функции для добавления и записи в JSON, удаления
+#--------------------------------------------------------------------------------------------
+# Функция добавления машины в JSON
 
 def save_cars_to_file(cars, file_path):
     with open(file_path, "w") as file:
         json.dump(cars, file, cls=CarEncoder, indent=4)
+
+
+# Функция чтения машины из JSON
 
 def load_cars_from_file(file_path):
     def car_decoder(dct):
@@ -65,7 +57,9 @@ def load_cars_from_file(file_path):
     except FileNotFoundError:
         return {}
     
-    #Просмотр списка машин(кол-во, бренды, специализации) 
+
+# Просмотр списка машин(кол-во, бренды, специализации) 
+
 def view_cars():
     print("\n===========================")
     print(f"Количество машин: {len(cars)}")
@@ -79,8 +73,10 @@ def view_cars():
             unique_specializations = set([car.spec for car in car_list.values()])
             print(f"Уникальные специализации {car_type} машин: {sorted(list(unique_specializations))}")
             print("===========================")
-            
-    #Удаление машины по id 
+
+
+# Удаление машины по id 
+
 def remove_car(car_id):
     print("\n---------------------------")
     
@@ -101,31 +97,27 @@ def remove_car(car_id):
         print("!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
 
 
+# def to_list(self): 
+#         return [self.car_id, self.year, self.country, self.model, self.car_up, self.spec] 
+# class CarStorage: 
+#     def __init__(self, file_name): 
+#         self.car_list = [] 
+#         self.next_id = 1 
+#         self.file_name = file_name
 
-
-def to_list(self): 
-        return [self.car_id, self.year, self.country, self.model, self.car_up, self.spec] 
-class CarStorage: 
-    def __init__(self, file_name): 
-        self.car_list = [] 
-        self.next_id = 1 
-        self.file_name = file_name
-
+# Выгрузка в EXEL
 
 def save_to_excel(self): 
-    wb = openpyxl.load_workbook(self.user_cars_data.xlsx) 
-    ws = wb.active 
+    pandas.read_json(FILE_PATH).to_excel(file_xlsx)
 
-    for car_list in self.cars: 
-        ws.append(self.to_list()) 
+# Определение переменных
 
-    wb.save(self.user_cars_data.xlsx) 
-    #print(f"Данные успешно сохранены в файл {self.user_cars_data.xlsx}")
-
-file_xlsx = CarStorage("user_cars_data.xlsx")
+FILE_PATH = "cars.json"
+cars = load_cars_from_file(FILE_PATH)
+file_xlsx = "cars.xlsx"
 
 #-------------------------------------------------------------
-#ветвление диалогов в боте 
+# Ветвление диалогов в боте
 
 @dp.message(Command('start'))
 async def start_adding_car(message: types.Message, state=FSMContext):
@@ -136,15 +128,43 @@ async def start_adding_car(message: types.Message, state=FSMContext):
     )
     await message.answer("Какую машину вы хотите добавить?", reply_markup=builder.as_markup(resize_keyboard=True))
 
-#начало добавления обычной машины
+
+# Начало добавления обычной машины
 @dp.message(F.text.lower() == 'simple')
 async def send_simple(message: types.Message, state=FSMContext):
-    # Пример обработки команды с установкой состояния
-    global type
-    type=message.text
+    await state.update_data(type=message.text)
     print(f"ТИП МАШИНЫ {type}")
     await state.set_state(CarForm.waiting_for_model)
     await message.answer("Добавим простую машину! Укажите марку: ")
+    
+
+# Добавление модели 
+@dp.message(CarForm.waiting_for_model)
+async def model_received(message: types.Message, state: FSMContext):
+    await state.update_data(model=message.text)
+    await state.set_state(CarForm.waiting_for_country)
+    await message.answer("Какая страна?")
+
+    print(f"! Машина записана с ID - {car_id} !")
+    cars[car_id] = main_car
+    save_cars_to_file(cars, FILE_PATH)
+
+    await message.answer("Машина записана в файл")
+    await state.clear()
+        
+    builder = ReplyKeyboardBuilder()
+    builder.row(
+        types.KeyboardButton(text = 'simple'),
+        types.KeyboardButton(text='special'),
+        )
+    builder.row(
+        types.KeyboardButton(text='exel'),
+        types.KeyboardButton(text='delete')
+        )
+    await message.answer(
+        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?", 
+        reply_markup=builder.as_markup(resize_keyboard=True)
+        )
     
 #начало добавления специальной машины
 @dp.message(F.text.lower() == 'special')
@@ -199,33 +219,6 @@ async def year_received(message: types.Message, state: FSMContext):
         year = message.text
         main_car = New_car(car_id, year, country, model, car_up, spec)
         
-#добавление модели 
-@dp.message(CarForm.waiting_for_model)
-async def model_received(message: types.Message, state: FSMContext):
-    await state.update_data(model=message.text)
-    await state.set_state(CarForm.waiting_for_country)
-    await message.answer("Какая страна?")
-
-    print(f"! Машина записана с ID - {car_id} !")
-    cars[car_id] = main_car
-    save_cars_to_file(cars, FILE_PATH)
-
-    await message.answer("Машина записана в файл")
-    await state.clear()
-        
-    builder = ReplyKeyboardBuilder()
-    builder.row(
-        types.KeyboardButton(text = 'simple'),
-        types.KeyboardButton(text='special'),
-        )
-    builder.row(
-        types.KeyboardButton(text='exel'),
-        types.KeyboardButton(text='delete')
-        )
-    await message.answer(
-        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?", 
-        reply_markup=builder.as_markup(resize_keyboard=True)
-        )
 
 import pandas as pd
 import pandas
