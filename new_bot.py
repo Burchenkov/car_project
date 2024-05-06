@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-
+from cars_data import add_car, show_cars 
 from aiogram.fsm.state import State, StatesGroup #-----------
 from aiogram.fsm.context import FSMContext #-----------
 from aiogram.filters.command import CommandStart  #-----------
@@ -14,19 +14,29 @@ from aiogram.types import ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
 from class1 import Car
 
-API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
-# API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
+# API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc'
+API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY'
 
 
 class CarForm(StatesGroup): #-----------
-    waiting_for_brand = State() #-----------
-    waiting_for_model = State() #-----------
-    waiting_for_year = State() #-----------
+    simple_brand = State() #-----------
+    simple_model = State() #-----------
+    simple_year = State() #-----------
+    special_brand = State() #-----------
+    special_model = State() #-----------
+    special_year = State() #-----------
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 list = []
+
+add_car("lada", "priora", 2000)
+show_cars()
+add_car("fe", "peeee", 2020)
+show_cars()
+add_car("ffa", "eeeea", 2030)
+show_cars()
 
 # @dp.message(Command('start'))
 # async def send_welcome(message: types.Message):
@@ -82,22 +92,22 @@ async def start_adding_car(message: types.Message):
 @dp.message(Command('simple'))
 async def send_simple(message: types.Message, state=FSMContext):
     # Пример обработки команды с установкой состояния
-    await state.set_state(CarForm.waiting_for_brand)
+    await state.set_state(CarForm.simple_brand)
     await message.answer("Вы добавили простую машину! Укажите марку: ")
 
-@dp.message(CarForm.waiting_for_brand)
+@dp.message(CarForm.simple_brand)
 async def brand_received(message: types.Message, state: FSMContext):
     await state.update_data(brand=message.text)
-    await state.set_state(CarForm.waiting_for_model)
+    await state.set_state(CarForm.simple_model)
     await message.answer("Какую модель?")
 
-@dp.message(CarForm.waiting_for_model)
+@dp.message(CarForm.simple_model)
 async def model_received(message: types.Message, state: FSMContext):
     await state.update_data(model=message.text)
-    await state.set_state(CarForm.waiting_for_year)
+    await state.set_state(CarForm.simple_year)
     await message.answer("Какой год выпуска?")
 
-@dp.message(CarForm.waiting_for_year)
+@dp.message(CarForm.simple_year)
 async def year_received(message: types.Message, state: FSMContext):
     data = await state.get_data()
     brand = data['brand']
@@ -105,6 +115,18 @@ async def year_received(message: types.Message, state: FSMContext):
     year = message.text
     await message.answer(f"Спасибо! Машина {brand} {model} {year} года добавлена.")
     await state.clear()
+
+@dp.message(Command('special'))
+async def send_simple(message: types.Message, state=FSMContext):
+    # Пример обработки команды с установкой состояния
+    await state.set_state(CarForm.special_brand)
+    await message.answer("Вы добавили специализированную машину! Укажите марку: ")
+
+@dp.message(CarForm.special_brand)
+async def brand_received(message: types.Message, state: FSMContext):
+    await state.update_data(brand=message.text)
+    await state.set_state(CarForm.special_model)
+    await message.answer("Какую модель?")
 #------------------------------------------------------------------------
 async def main():
     await dp.start_polling(bot)
