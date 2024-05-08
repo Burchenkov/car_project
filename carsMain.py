@@ -51,23 +51,23 @@ def save_to_excel():
 JSON_FILE_NAME = "data.json"
 EXCEL_FILE_NAME = "data.xlsx"
 
-# переменные
-cars = {}
-nextCarNumber = 0 # счётчик объектов в словаре, т.е. ID
+# # переменные
+# cars = {}
+# nextCarNumber = 0 # счётчик объектов в словаре, т.е. ID
 
-# создаём три объекта класса, добавляем их в словарь, nextCarNumber как ключ для хранения в словаре
-oCar = Car('W0L0TGF35Y2063872', 2004, 'Russia', 'Golf')
-cars[nextCarNumber] = vars(oCar) # добавляем в словарь cars словари состоящие из аттрибутов
-nextCarNumber += 1
+# # создаём три объекта класса, добавляем их в словарь, nextCarNumber как ключ для хранения в словаре
+# oCar = Car('W0L0TGF35Y2063872', 2004, 'Russia', 'Golf')
+# cars[nextCarNumber] = vars(oCar) # добавляем в словарь cars словари состоящие из аттрибутов
+# nextCarNumber += 1
 
-oCar = Car('KL1NF35B1CK692248', 2014, 'Russia', 'Impreza')
-cars[nextCarNumber] = vars(oCar)
-nextCarNumber += 1
+# oCar = Car('KL1NF35B1CK692248', 2014, 'Russia', 'Impreza')
+# cars[nextCarNumber] = vars(oCar)
+# nextCarNumber += 1
 
-oCar = Car('JTMHV05J904111483', 2020, 'Findland', 'SAAB')
-cars[nextCarNumber] = vars(oCar)
-nextCarNumber += 1
+# oCar = Car('JTMHV05J904111483', 2020, 'Findland', 'SAAB')
+# cars[nextCarNumber] = vars(oCar)
+# nextCarNumber += 1
 
-save(cars, JSON_FILE_NAME)
-# print_dictionary(cars)
+# save(cars, JSON_FILE_NAME)
+# # print_dictionary(cars)
 save_to_excel()
