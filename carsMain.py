@@ -29,7 +29,7 @@ def save_to_excel():
         json_data = json.load(json_file)
     
     sheet['A1'] = 'ID'
-    sheet['B1'] = 'VIN'
+    sheet['B1'] = 'Car ID'
     sheet['C1'] = 'YEAR'
     sheet['D1'] = 'COUNTRY'
     sheet['E1'] = 'MODEL'
@@ -37,7 +37,7 @@ def save_to_excel():
     row = 2
     for key,value in json_data.items():
         sheet[row][0].value = key
-        sheet[row][1].value = value['car_ID']
+        sheet[row][1].value = value['car_id']
         sheet[row][2].value = value['year']
         sheet[row][3].value = value['country']
         sheet[row][4].value = value['model']
