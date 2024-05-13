@@ -1,18 +1,16 @@
-import json
-
 all_avto = {}
 
-
 while True:
-    avto = input("Введите название бренда, модель и год авто:\n""Введите Стоп: ")
+    avto = input("Введите название бренд авто:\n""Введите Стоп: ")
     if avto == "Стоп":
         break
-    brand, model, year = avto.split(",")
-    all_avto.setdefault((brand, model, year), avto)
+    brand = input("Введите название модель:\n""Введите Стоп: ")
+    year = input("Введите год авто:\n""Введите Стоп: ")
+    all_avto[(avto, brand, year)] = f"{avto} {brand} {year}"
 
 print("Список авто:")
-for i, (brand, model, year) in enumerate(all_avto.keys(), 1):
-    print(f"{i}. {all_avto[(brand, model, year)]}")
+for i, (key, value) in enumerate(all_avto.items(), 1):
+    print(f"{i}. {value}")
 
 choice = input("Вы хотите удалить машину из списка? (да/нет): ")
 if choice == "да":
@@ -22,8 +20,7 @@ if choice == "да":
         print("Машина под номером", choice_number, "удалена!\n",)
         print("Список авто после удаление:")
         for i, (key, value) in enumerate(all_avto.items(), 1):
-                print(f"{i}. {key}: {value}")
+            print(f"{i}. {value}")
 else:
     print("Список сохранён!")
-FILE_PATH = "all_avto.json"
 
