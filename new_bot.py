@@ -37,14 +37,12 @@ dp = Dispatcher()
 
 #--------------------------------------------------------------------------------------------
 # Функция добавления машины в JSON
-
 def save_cars_to_file(cars, file_path):
     with open(file_path, "w") as file:
         json.dump(cars, file, cls=CarEncoder, indent=4)
 
 
 # Функция чтения машины из JSON
-
 def load_cars_from_file(file_path):
     def car_decoder(dct):
         if 'spec' in dct:
@@ -59,7 +57,6 @@ def load_cars_from_file(file_path):
     
 
 # Просмотр списка машин(кол-во, бренды, специализации) 
-
 def view_cars():
     print("\n===========================")
     print(f"Количество машин: {len(cars)}")
@@ -76,7 +73,6 @@ def view_cars():
 
 
 # Удаление машины по id 
-
 def remove_car(car_id):
     print("\n---------------------------")
     
@@ -106,19 +102,17 @@ def remove_car(car_id):
 #         self.file_name = file_name
 
 # Выгрузка в EXEL
-
 def save_to_excel(self): 
     pandas.read_json(FILE_PATH).to_excel(file_xlsx)
 
 # Определение переменных
-
 FILE_PATH = "cars.json"
 cars = load_cars_from_file(FILE_PATH)
 file_xlsx = "cars.xlsx"
 
 #-------------------------------------------------------------
-# Ветвление диалогов в боте
 
+# Ветвление диалогов в боте
 @dp.message(Command('start'))
 async def start_adding_car(message: types.Message, state=FSMContext):
     builder = ReplyKeyboardBuilder()
@@ -192,7 +186,6 @@ async def car_up_received(message: types.Message, state: FSMContext):
     await message.answer("Какая модель?")
     
 
-
 #добавление страны 
 @dp.message(CarForm.waiting_for_country)
 async def country_received(message: types.Message, state: FSMContext):
@@ -218,13 +211,12 @@ async def year_received(message: types.Message, state: FSMContext):
         country = data['country']
         year = message.text
         main_car = New_car(car_id, year, country, model, car_up, spec)
-        
 
+        
 import pandas as pd
 import pandas
 
 # Конвертация в EXEL
-
 @dp.message(F.text.lower() == 'exel')
 async def send_exel(message: types.Message, state=FSMContext):
     print(f'тачка на прокачку {cars}')
@@ -234,7 +226,6 @@ async def send_exel(message: types.Message, state=FSMContext):
     await message.answer("Выгружаю в Exel, но это не точно...")
 
 # Удаление машины по ID
-
 @dp.message(F.text.lower() == 'delete')
 async def send_car_id(message: types.Message, state=FSMContext):
     
@@ -249,6 +240,8 @@ async def car_id_received(message: types.Message, state: FSMContext):
     #remove_car(car_id)
     await message.answer(f"Машина с ID {car_id} типо удалена...")
     pandas.read_json("cars.json").to_excel("cars.xlsx")
+
+
 #-------------------------------------------------------------
 
 async def main():
