@@ -105,18 +105,6 @@ def remove_car(car_id):
         print("!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!!=-=!")
 
 
-# def to_list(self): 
-#         return [self.car_id, self.year, self.country, self.model, self.car_up, self.spec] 
-# class CarStorage: 
-#     def __init__(self, file_name): 
-#         self.car_list = [] 
-#         self.next_id = 1 
-#         self.file_name = file_name
-
-# Выгрузка в EXEL
-def save_to_excel(self): 
-    pandas.read_json(FILE_PATH).to_excel(file_xlsx)
-
 # Определение переменных
 FILE_PATH = "cars.json"
 cars = load_cars_from_file(FILE_PATH)
@@ -144,6 +132,7 @@ async def start_adding_car(message: types.Message, state=FSMContext):
         reply_markup=builder.as_markup(resize_keyboard=True)
         )
 
+
 #начало добавления специальной машины
 @dp.message(F.text.lower() == 'special')
 async def send_special(message: types.Message, state=FSMContext):
@@ -152,13 +141,15 @@ async def send_special(message: types.Message, state=FSMContext):
     await state.set_state(CarForm.waiting_for_spec)
     await message.answer("Добавим специальную машину! Укажите спецализацию: ")
 
-#добавление добавление спецализации
+
+#добавление спецализации
 @dp.message(CarForm.waiting_for_spec)
 async def spec_received(message: types.Message, state: FSMContext):
     await state.update_data(spec=message.text)
     await state.set_state(CarForm.waiting_for_car_up)
     await message.answer("Какая высота машины?")
-    
+
+
 #добавление высоты спец-машины 
 @dp.message(CarForm.waiting_for_car_up)
 async def car_up_received(message: types.Message, state: FSMContext):
@@ -174,7 +165,8 @@ async def country_received(message: types.Message, state: FSMContext):
     await state.set_state(CarForm.waiting_for_year)
     await message.answer("Какой год выпуска?")
 
-# Начало добавления обычной машины
+
+#начало добавления обычной машины
 @dp.message(F.text.lower() == 'simple')
 async def send_simple(message: types.Message, state=FSMContext):
     await state.update_data(type=message.text)
@@ -183,18 +175,16 @@ async def send_simple(message: types.Message, state=FSMContext):
     await message.answer("Добавим простую машину! Укажите марку: ")
     
 
-# Добавление модели 
+#добавление модели 
 @dp.message(CarForm.waiting_for_model)
 async def model_received(message: types.Message, state: FSMContext):
     await state.update_data(model=message.text)
     await state.set_state(CarForm.waiting_for_country)
     await message.answer("Какая страна?")
-    # #car_id = len(cars) + 1
-    
+    #car_id = len(cars) + 1
 
-    
 
-#добавление года выпуска
+#добавление года выпуска и создание экземпляра класса
 @dp.message(CarForm.waiting_for_year)
 async def year_received(message: types.Message, state: FSMContext):
     car_id = len(cars) + 1
@@ -222,11 +212,11 @@ async def year_received(message: types.Message, state: FSMContext):
     builder = ReplyKeyboardBuilder()
     builder.row(
         types.KeyboardButton(text = 'simple'),
-        types.KeyboardButton(text='special'),
+        types.KeyboardButton(text = 'special'),
         )
     builder.row(
-        types.KeyboardButton(text='exel'),
-        types.KeyboardButton(text='delete')
+        types.KeyboardButton(text = 'exel'),
+        types.KeyboardButton(text = 'delete')
         )
     await message.answer(
         "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL?", 
@@ -249,19 +239,17 @@ async def send_exel(message: types.Message, state=FSMContext):
     with open(JSON_FILE_NAME, 'r') as json_file:
         json_data = json.load(json_file)
     
-    sheet['A1'] = 'ID'
-    sheet['B1'] = 'Car ID'
-    sheet['C1'] = 'YEAR'
-    sheet['D1'] = 'COUNTRY'
-    sheet['E1'] = 'MODEL'
+    sheet['A1'] = 'Car ID'
+    sheet['B1'] = 'YEAR'
+    sheet['C1'] = 'COUNTRY'
+    sheet['D1'] = 'MODEL'
 
     row = 2
     for key,value in json_data.items():
-        sheet[row][0].value = key
-        sheet[row][1].value = value['car_id']
-        sheet[row][2].value = value['year']
-        sheet[row][3].value = value['country']
-        sheet[row][4].value = value['model']
+        sheet[row][0].value = value['car_id']
+        sheet[row][1].value = value['year']
+        sheet[row][2].value = value['country']
+        sheet[row][3].value = value['model']
         row += 1
 
     book.save(EXCEL_FILE_NAME)
