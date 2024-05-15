@@ -187,12 +187,11 @@ async def model_received(message: types.Message, state: FSMContext):
     # #car_id = len(cars) + 1
     
 
-    
-
 #добавление года выпуска
 @dp.message(CarForm.waiting_for_year)
 async def year_received(message: types.Message, state: FSMContext):
-    car_id = len(cars) + 1
+    car_id = int(list(dict.keys(cars))[-1]) + 1
+    print(f">>>{car_id}<<<<")
     data = await state.get_data()
     if data['type'] == "simple":
         model = data['model']
