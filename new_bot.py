@@ -21,13 +21,16 @@ from aiogram.types.input_file import FSInputFile
 
 
 # my Telegram bot - @myCarListStoreBot
-API_TOKEN = "6716836158:AAHxnBKSQOWqrdLtLITU7kfJPo6Y9xhwzdM" 
+API_TOKEN = "7082797338:AAGFiO9JvT20WMNyJO6xDSXBnMibz4sQGe0" 
 
 # API_TOKEN = '6773453600:AAGmMXq-MGKleUj0QX7_T65cu_PS4lfHAJc' - this is token 
 # of Anton
 
 # API_TOKEN = '6519487700:AAFsMPqa-LhsW2NVxxsRlOvvogBvhgPD4HY' - this is unlnown 
 # token
+
+# API_TOKEN = "7082797338:AAGFiO9JvT20WMNyJO6xDSXBnMibz4sQGe0" - this is token of Ruslan
+
 
 class CarForm(StatesGroup): 
     waiting_for_model = State() 
@@ -218,7 +221,7 @@ async def year_received(message: types.Message, state: FSMContext):
         types.KeyboardButton(text = 'text')
         )
     await message.answer(
-        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL или текст?", 
+        "Хотите добавить еще простую или специальную машину? Или выгрузить в EXEL или Txt-файл?", 
         reply_markup=builder.as_markup(resize_keyboard=True)
         )
 
